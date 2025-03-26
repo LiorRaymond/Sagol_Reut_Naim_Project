@@ -10,3 +10,6 @@ Resources:
 2. Leave-One-Out Cross-Validation (LOOCV): https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.LeaveOneOut.html
 3. Balanced Accuracy: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
 4. An Introduction to Statistical Learning (textbook): https://www.statlearning.com/
+
+Extra (if you have time): 
+1. Zero-order correlations (not controlling for other variables - e.g., Pearson's) between all variables. 
