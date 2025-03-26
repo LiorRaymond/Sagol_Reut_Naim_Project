@@ -1,15 +1,15 @@
 Wednesday, March 26, 2025
 Next Steps: 
 1. Finish cleaning data and create data dictionary.
-2. Exploratory Data Analysis: Box-plots for clinical and task variables. 
+2. Exploratory Data Analysis: Boxplots for clinical and task variables. 
 3. Inferential Tests: Two independent samples t-tests (two-tailed) to explore whether healthy volunteers vs. DMDD/sub-DMDD/ADHD (binary dependent variable) differ on anxiety (SCARED Total Score, IV) and irritability (ARI Total Score, IV) - separately for each IV. 
 4. Select features (machine learning term for variables) to include in the model.
 
 Resources: 
-1. Logistic Regression: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
-2. Leave-One-Out Cross-Validation (LOOCV): https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.LeaveOneOut.html
-3. Balanced Accuracy: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
-4. An Introduction to Statistical Learning (textbook): https://www.statlearning.com/
+- Logistic Regression: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+- Leave-One-Out Cross-Validation (LOOCV): https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.LeaveOneOut.html
+- Balanced Accuracy: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html
+- An Introduction to Statistical Learning (textbook): https://www.statlearning.com/
 
 Extra (if you have time): 
 1. Zero-order correlations (not controlling for other variables - e.g., Pearson's) between all variables. 
