@@ -13,3 +13,15 @@ Resources:
 
 Extra (if you have time): 
 1. Zero-order correlations (not controlling for other variables - e.g., Pearson's) between all variables. 
+
+Monday, April 7, 2025
+Next Steps: 
+1. Add labeled outliers (with participant ID) for boxplots and share with R. Naim.
+2. Get histogram for age variable. 
+3. Zero-order correlations (not controlling for other variables - e.g., Pearson's): 
+      - Between features
+      - Between features and ARI (parent)
+      - Between features and SCARED (parent)
+   Note: Before running correlations, z-score all variables. Also, apply False Discovery Rate (FDR) to p-value threshold of 0.10.
+4. Z. Laky to review eye tracking data for two flagged participants: 23149, 24234.
+
