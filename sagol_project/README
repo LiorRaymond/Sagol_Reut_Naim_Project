@@ -25,3 +25,12 @@ Next Steps:
    Note: Before running correlations, z-score all variables. Also, apply False Discovery Rate (FDR) to p-value threshold of 0.10.
 4. Z. Laky to review eye tracking data for two flagged participants: 23149, 24234.
 
+Tuesday, April 22, 2025
+1. List of features significantly correlated, along with associated r values
+2. Re-run zero-order correlations (with null for 23149, 24234): 
+      - Between features
+      - Between features and ARI (parent, total)
+      - Between features and SCARED (parent, total)
+      - Between ARI and SCARED (parent, item-level and total)
+3. R. Naim and Z. Laky to consider whether model should account for dependancies between ARI and SCARED. 
+
