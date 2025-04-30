@@ -28,7 +28,7 @@ for row_idx, (idx_name, row_data) in enumerate(df.iterrows(), start=2):
         cell.value = value
         
         # Apply conditional formatting - skip coloring if value is exactly 1 (self-correlation)
-        if abs(value) > 0.9 and not np.isclose(value, 1.0, rtol=1e-5):
+        if (abs(value) > 0.9) and (row_idx != col_idx):
             if value > 0.9:
                 red_hex = f"{int(255 * value):02X}"
                 cell.fill = PatternFill(start_color=f"{red_hex}AAAA", end_color=f"{red_hex}AAAA", fill_type="solid")
