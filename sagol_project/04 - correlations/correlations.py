@@ -122,12 +122,18 @@ all_tests_df["p_fdr"]       = p_corr
 all_tests_df["significant"] = rej
 
 # —————————————————————————————————————————————————————
-# 4.5. EXPORT FDR-CORRECTED P-VALUES TO CSV (במקום הדפסה)
+# 4.5. EXPORT FDR-CORRECTED P-VALUES TO CSV 
 # —————————————————————————————————————————————————————
 
 # feature–feature
-ff_fdr = all_tests_df.query("Type == 'feature-feature'")[["Feature_1", "Feature_2", "p_fdr"]]
-ff_fdr.to_csv(out_dir / "p_fdr_feature_feature.csv", index=False)
+ff_fdr_long = all_tests_df.query("Type == 'feature-feature'")[["Feature_1", "Feature_2", "p_fdr"]]
+ff_fdr_matrix = ff_fdr_long.pivot(index="Feature_1", columns="Feature_2", values="p_fdr")
+
+features = ff_fdr_matrix.columns.union(ff_fdr_matrix.index)
+ff_fdr_matrix = ff_fdr_matrix.reindex(index=features, columns=features)
+ff_fdr_matrix = ff_fdr_matrix.combine_first(ff_fdr_matrix.T)
+
+ff_fdr_matrix.to_csv(out_dir / "p_fdr_feature_feature_matrix.csv")
 
 # feature–ARI
 ari_fdr = all_tests_df.query("Type == 'feature-ARI'")[["Feature_1", "p_fdr"]]
