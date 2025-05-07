@@ -58,7 +58,7 @@ def ttest_levene(data, variables):
             #Welch's t-test if variances are not equal
             t_stat, p_val = stats.ttest_ind(group_0, group_1, equal_var=False)
 
-        # Store results
+        #save results
         results[var] = {
             't_stat': t_stat,
             'p_val': p_val,
@@ -73,9 +73,7 @@ def ttest_levene(data, variables):
 
     return results
 
-# List of variables to test
 variables = ['ari_child', 'ari_parent', 'scared_child', 'scared_parent']
 
-# Run the pipeline
 t_test_results = ttest_levene(data, variables)
 t_test_results
