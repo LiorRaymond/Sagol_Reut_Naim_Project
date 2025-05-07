@@ -1,0 +1,79 @@
+"""
+Title: T-Test Example
+Author: Zoë E. Laky, M.A.
+Contact: zoe.laky@nih.gov
+Date: 07MAY2025
+
+Dataset(s):
+- example datasets
+
+Versions: 
+- Written for Python 3.10.15, Spyder 6.0.3
+
+Notes:
+    
+"""
+import pandas as pd
+import numpy as np
+from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+np.random.seed(843)
+data_size = 100
+
+#random data 
+diagnosis = np.random.choice([0, 1], size=data_size)
+ari_child = np.random.normal(loc=10, scale=5, size=data_size) + (diagnosis * 3)  #group 1 will have higher mean
+ari_parent = np.random.normal(loc=20, scale=5, size=data_size) + (diagnosis * 2)  #group 1 will have higher mean
+scared_child = np.random.normal(loc=30, scale=7, size=data_size) + (diagnosis * 4)  #group 1 will have higher mean
+scared_parent = np.random.normal(loc=40, scale=8, size=data_size) + (diagnosis * 5)  #group 1 will have higher mean
+
+#create dataframe
+data = pd.DataFrame({
+    'diagnosis': diagnosis,
+    'ari_child': ari_child,
+    'ari_parent': ari_parent,
+    'scared_child': scared_child,
+    'scared_parent': scared_parent
+})
+
+#run t-test with levene's
+def ttest_levene(data, variables):
+    results = {}
+    
+    for var in variables:
+        group_0 = data[data["diagnosis"] == 0][var].dropna()
+        group_1 = data[data["diagnosis"] == 1][var].dropna()
+
+        levene_stat, levene_p = stats.levene(group_0, group_1)
+
+        #select t-test based on levene's result
+        if levene_p > 0.05:
+            #standard T-test if variances are equal
+            t_stat, p_val = stats.ttest_ind(group_0, group_1)
+        else:
+            #Welch's t-test if variances are not equal
+            t_stat, p_val = stats.ttest_ind(group_0, group_1, equal_var=False)
+
+        # Store results
+        results[var] = {
+            't_stat': t_stat,
+            'p_val': p_val,
+            'levene_p': levene_p
+        }
+
+        #plot
+        plt.figure(figsize=(8, 6))
+        sns.boxplot(x='diagnosis', y=var, data=data)
+        plt.title(f"T-test for {var} by diagnosis\nT-statistic: {t_stat:.4f}, T-test p-value: {p_val:.4f}\nLevene's p-value: {levene_p:.4f}")
+        plt.show()
+
+    return results
+
+# List of variables to test
+variables = ['ari_child', 'ari_parent', 'scared_child', 'scared_parent']
+
+# Run the pipeline
+t_test_results = ttest_levene(data, variables)
+t_test_results
