@@ -4,7 +4,6 @@ from scipy import stats
 import os
 import seaborn as sns
 
-
 data = pd.read_csv("Cleaned_data.csv")
 id_col = "ID"
 
@@ -14,18 +13,26 @@ dx_index = cols.index("Dx")
 cols.insert(dx_index + 1, cols.pop(cols.index("Dx_binary")))
 data = data[cols]
 
-variables = ["ARI_1_C",	"ARI_1_P",	"ARI_6_C",	"ARI_6_P",	"SCARED_C",	"SCARED_P"]
+variables = ["ARI_1_C", "ARI_1_P", "ARI_6_C", "ARI_6_P", "SCARED_C", "SCARED_P"]
 
 output_dir = "t_test_graphs"
+os.makedirs(output_dir, exist_ok=True)
 
+# Run T-tests with Levene's test
 for var in variables:
     group_0 = data[data["Dx_binary"] == 0][var]
     group_1 = data[data["Dx_binary"] == 1][var]
-    
-    t_stat, p_val = stats.ttest_ind(group_0, group_1, nan_policy='omit')
+
+    # Levene's test for equal variances
+    levene_stat, levene_p = stats.levene(group_0, group_1, center='mean')
+    equal_var = True if levene_p > 0.05 else False
+
+    t_stat, p_val = stats.ttest_ind(group_0, group_1, equal_var=equal_var, nan_policy='omit')
+
 
     plt.figure(figsize=(8, 6))
     ax = sns.boxplot(x='Dx_binary', y=var, data=data)
+
     for i, group in enumerate([0, 1]):
         group_data = data[data["Dx_binary"] == group][[id_col, var]].dropna()
         q1 = group_data[var].quantile(0.25)
@@ -49,8 +56,12 @@ for var in variables:
             plt.text(i, outlier_y + offset, f"ID: {row[id_col]}", fontsize=8, verticalalignment='bottom')
             y_offsets[outlier_y] = offset
 
-    plt.title(f"T test of {var} by Dx_binary\nT-statistic: {t_stat:.4f}, P-value: {p_val:.4f}")
 
+    plt.title(
+        f"T test of {var} by Dx_binary\n"
+        f"T-statistic: {t_stat:.4f}, P-value: {p_val:.4f}, Levene P: {levene_p:.4f}"
+    )
+
+    # Save plot
     plt.savefig(os.path.join(output_dir, f"{var}_T_test.png"))
     plt.close()
-
