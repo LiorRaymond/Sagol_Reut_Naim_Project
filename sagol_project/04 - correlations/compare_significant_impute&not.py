@@ -1,8 +1,10 @@
 import pandas as pd
+from pathlib import Path
 
 # טען את שני הקבצים
-df1 = pd.read_csv("./results/all_significant_correlations.csv")
-df2 = pd.read_csv("./results_imuted_data/all_significant_correlations_im.csv")
+BASE_DIR = Path(__file__).parent
+df1 = pd.read_csv(BASE_DIR / "results/all_significant_correlations.csv")
+df2 = pd.read_csv(BASE_DIR / "results_imuted_data/all_significant_correlations_im.csv")
 
 # קח רק את העמודות הרלוונטיות
 pairs1 = df1[['Feature_1', 'Feature_2']]
