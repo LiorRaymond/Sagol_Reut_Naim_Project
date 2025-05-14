@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Title: Task VIF 
+Author: Zoe E. Laky
+Date: 13MAY2025
+    
+Notes: 
+- High VIF means variable is highly collinear with other predictors, which can inflate standard errors and make it difficult to interpret individual feature effects.
+- If goal is predictive accuracy and not feature interpretability, multicollinearity might not be as much of a concern.
+- Regularization: Ridge or Lasso regression can help reduce the impact of high VIF features by applying a penalty to large coefficients. Ridge may be preferable if you want to keep both. 
+- Feature Engineering: Consider whether a composite score can be created from highly correlated features.
+"""
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import os
+from platform import python_version
+print (python_version())
+
+os.chdir("/Users/lakyzf/Library/CloudStorage/OneDrive-NationalInstitutesofHealth/In_Use/Python_WD/IRR_ANX_Motion")
+
+"""
+Dataframe Set-up
+"""
+features = pd.read_csv("task_features.csv")
+features = features.drop(features.columns[0], axis=1)
+miss_cols = features.isnull().sum().reset_index(name='missing_count').rename(columns={'index': 'column'})
+features.fillna(0, inplace=True)
+X_scared = features[['Dwell_a_a_EY', 
+            'pctFirstFixa_aEY', 
+            'Dwell_a_d_EY', 
+            'pctFirstFixa_dBG', 
+            'Dwell_a_d_BG', 
+            'Dwell_a_a_BG', 
+            'Dwell_c_a_EY', 
+            'Dwell_c_d_BG', 
+            'pctFirstFixa_dEY', 
+            'meanRT-c_a', 
+            'pctFirstFixc_dBG', 
+            'pctFirstFixc_aBG']]
+
+X_ari = features[['pctFirstFixc_aBG', 
+                  'pctFirstFixc_dBG', 
+                  'Dwell_a_d_EY', 
+                  'Dwell_c_a_BG', 
+                  'Dwell_a_a_BG', 
+                  'Dwell_a_d_BG', 
+                  'pctFirstFixa_dBG', 
+                  'Dwell_a_a_EY']]
+
+"""
+Manual VIF
+"""
+for i in range(0, len(X_scared.columns)):
+    y = X_scared.loc[:, X_scared.columns == X_scared.columns[i]]
+    x = X_scared.loc[:, X_scared.columns != X_scared.columns[i]]
+    x = sm.add_constant(x)
+    model = sm.OLS(y,x)
+    results = model.fit()
+    rsq = results.rsquared
+    vif = round(1 / (1 - rsq), 2)
+    print(
+        "R Square value of {} column is {} keeping all other columns as features".format(
+            X_scared.columns[i], (round(rsq, 2))
+        )
+    )
+    print(
+        "Variance Inflation Factor of {} column is {} \n".format(
+            X_scared.columns[i], vif)
+    )
+     
+#High
+# | Variable     | VIF   |
+# | ------------ | ----- |
+# | Dwell_a_d_BG | 18.8  |
+# | Dwell_a_d_EY | 15.54 |
+# | Dwell_c_d_BG | 12.67 |
+# | Dwell_a_a_EY | 13.59 |
+# | Dwell_a_a_BG | 10.25 |
+
+# #Moderate
+# | Variable         | VIF  |
+# | ---------------- | ---- |
+# | Dwell_c_a_EY     | 8.18 |
+# | pctFirstFixc_dBG | 7.05 |
+# | pctFirstFixa_dEY | 6.7  |
+# | pctFirstFixa_dBG | 6.4  |
+
+# #Low
+# | Variable         | VIF  |
+# | ---------------- | ---- |
+# | pctFirstFixa_aEY | 3.43 |
+# | pctFirstFixc_aBG | 3.72 |
+# | meanRT-c_a       | 1.39 |
+
+
+X_scared_drop = X_scared.loc[:, ~X_scared.columns.str.startswith("pct")]
+
+for i in range(0, len(X_ari.columns)):
+    y = X_ari.loc[:, X_ari.columns == X_ari.columns[i]]
+    x = X_ari.loc[:, X_ari.columns != X_ari.columns[i]]
+    x = sm.add_constant(x)
+    model = sm.OLS(y,x)
+    results = model.fit()
+    rsq = results.rsquared
+    vif = round(1 / (1 - rsq), 2)
+    print(
+        "R Square value of {} column is {} keeping all other columns as features".format(
+            X_ari.columns[i], (round(rsq, 2))
+        )
+    )
+    print(
+        "Variance Inflation Factor of {} column is {} \n".format(
+            X_ari.columns[i], vif)
+    )
+    
+#Very High
+# | Variable     | VIF   | R²   |
+# | ------------ | ----- | ---- |
+# | Dwell_a_d_BG | 22.56 | 0.96 |
+# | Dwell_c_a_BG | 13.81 | 0.93 |
+
+
+#High
+# | Variable     | VIF  | R²   |
+# | ------------ | ---- | ---- |
+# | Dwell_a_a_BG | 9.06 | 0.89 |
+# | Dwell_a_d_EY | 8.72 | 0.89 |
+# | Dwell_a_a_EY | 8.70 | 0.89 |
+
+#Moderate
+# | Variable         | VIF  | R²   |
+# | ---------------- | ---- | ---- |
+# | pctFirstFixa_dBG | 6.25 | 0.84 |
+# | pctFirstFixc_dBG | 5.96 | 0.83 |
+
+#Low
+# | Variable         | VIF  | R²   |
+# | ---------------- | ---- | ---- |
+# | pctFirstFixc_aBG | 4.58 | 0.78 |
+
+X_ari_drop = X_ari.loc[:, ~X_ari.columns.str.startswith("pct")]
+
+"""
+Package VIF
+"""
+X = sm.add_constant(X_scared_drop)
+vif_data = pd.DataFrame()
+vif_data["feature"] = X.columns
+vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+print(vif_data)
+
+#Moderate to High
+# | Feature      | VIF   | Note                            |
+# | ------------ | ----- | ------------------------------- |
+# | Dwell_a_a_EY | 9.63  | Borderline.                     |
+# | Dwell_a_d_EY | 10.65 | Over standard cutoff of 10.     |
+# | Dwell_a_d_BG | 12.43 | Too high — multicollinearity.   |
+# | Dwell_a_a_BG | 9.88  | Borderline.                     |
+# | Dwell_c_d_BG | 9.35  | Borderline.                     |
+
+#Low
+# | Feature      | VIF  | Note                                       |
+# | ------------ | ---- | ------------------------------------------ |
+# | meanRT-c_a   | 1.34 | No collinearity concern.                   |
+# | Dwell_c_a_EY | 6.85 | Moderate, but acceptable in most contexts. |
+
+X = sm.add_constant(X_ari_drop)
+vif_data = pd.DataFrame()
+vif_data["feature"] = X.columns
+vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+print(vif_data)
+
+#High
+# | Feature      | VIF   | Note                          |
+# | ------------ | ----- | ----------------------------- |
+# | Dwell_a_d_BG | 14.91 | Too high — multicollinearity. |                                      |
+
+#Low to Moderate
+# | Feature      | VIF  | Note        |
+# | ------------ | ---- | ----------- |
+# | Dwell_a_d_EY | 8.08 | Acceptable. |
+# | Dwell_c_a_BG | 8.73 | Acceptable. |
+# | Dwell_a_a_BG | 8.48 | Acceptable. |
+# | Dwell_a_a_EY | 8.41 | Acceptable. |
+
+
+
+
