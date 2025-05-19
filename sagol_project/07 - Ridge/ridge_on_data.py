@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import balanced_accuracy_score, accuracy_score, classification_report
 
 
-def run_ridge_regression(df, feature_file, output_file):
+def run_ridge_regression(df, feature_file, output_file, alphas):
     # Load feature names
     feature_names = pd.read_csv(feature_file)['feature'].tolist()
 
@@ -14,9 +14,6 @@ def run_ridge_regression(df, feature_file, output_file):
     X = df[feature_names]
     y = df['target']
     ids = df['ID']
-
-    # Define the set of alphas to compare
-    alphas = [0.1, 0.3, 0.5, 0.7, 0.9]
 
     #initialize LOOCV
     loo = LeaveOneOut()
@@ -92,6 +89,10 @@ df = pd.read_csv("Cleaned_data_imputed.csv")
 #adding target column
 df['target'] = df['Dx'].apply(lambda x: 0 if x == 'HV' else 1)
 
+#define alphas
+ari_alphas = [0.1, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9]
+scared_alphas = [0.1, 0.3, 0.5, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+
 #running functions (no '.csv' in output_file)
-run_ridge_regression(df, "ARI_features_for_ridgereg.csv", "ARI_Ridge")
-run_ridge_regression(df, "SCARED_features_for_ridgereg.csv", "SCARED_Ridge")
+run_ridge_regression(df, "ARI_features_for_ridgereg.csv", "ARI_Ridge", ari_alphas)
+run_ridge_regression(df, "SCARED_features_for_ridgereg.csv", "SCARED_Ridge", scared_alphas)
