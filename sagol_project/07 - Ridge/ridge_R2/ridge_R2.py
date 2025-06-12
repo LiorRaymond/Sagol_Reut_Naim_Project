@@ -80,7 +80,7 @@ data = BASE_DIR / "Cleaned_data_imputed.csv"
 feature_file_ari  = BASE_DIR / "ARI_features_for_ridgereg.csv"
 feature_file_scared = BASE_DIR / "SCARED_features_for_ridgereg.csv"
 
-alphas = [0.1, 0.3, 0.5, 0.7, 0.9]
+alphas = np.logspace(-4, 4, num=20) 
 
 #------ARI---------
 df = pd.read_csv(data)
