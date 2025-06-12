@@ -4,6 +4,7 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
+import numpy as np
 from pathlib import Path
 
 def run_ridge_r2(df, feature_file, output_file, alphas):
@@ -46,26 +47,30 @@ def run_ridge_r2(df, feature_file, output_file, alphas):
 
     metrics_df = pd.DataFrame({
         'alpha': alphas,
+        'log_alpha': np.log10(alphas),
         'R2_train': [sum(train_r2_scores[a]) / len(train_r2_scores[a]) for a in alphas],
         'R2_loocv': [r2_score(y_true_all, y_pred_by_alpha[a]) for a in alphas],
     })
 
+    best_alpha_idx = metrics_df['R2_loocv'].idxmax()
+    best_log_alpha = metrics_df.loc[best_alpha_idx, 'log_alpha']
+
     # Save metrics
     metrics_df.to_csv(output_file + "_r2_metrics.csv", index=False)
 
-    # Plot
+    # Plot with log(alpha)
     plt.figure(figsize=(8, 5))
-    plt.plot(metrics_df['alpha'], metrics_df['R2_train'], marker='o', label='Train R²')
-    plt.plot(metrics_df['alpha'], metrics_df['R2_loocv'], marker='s', label='LOOCV R²')
-    plt.title('R² by Alpha (Ridge Regression)')
-    plt.xlabel('Alpha')
+    plt.plot(metrics_df['log_alpha'], metrics_df['R2_train'], color='blue', label='Training R²')
+    plt.plot(metrics_df['log_alpha'], metrics_df['R2_loocv'], color='green', label='LOOCV R²')
+    plt.axvline(x=best_log_alpha, color='red', linestyle='--', label='Best alpha for LOOCV')
+    plt.title('Training vs LOOCV R² Across log(Alpha)')
+    plt.xlabel('log(Alpha)')
     plt.ylabel('R²')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(output_file + "_r2_plot.png")
+    plt.savefig(output_file + "_r2_logalpha_plot.png")
     plt.show()
-
 
 
 #------data---------
