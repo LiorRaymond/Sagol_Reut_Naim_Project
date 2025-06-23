@@ -63,7 +63,7 @@ def run_ridge_r2(df, feature_file, output_file, alphas):
     plt.plot(metrics_df['log_alpha'], metrics_df['R2_train'], color='blue', label='Training R²')
     plt.plot(metrics_df['log_alpha'], metrics_df['R2_loocv'], color='green', label='LOOCV R²')
     plt.axvline(x=best_log_alpha, color='red', linestyle='--', label='Best alpha for LOOCV')
-    plt.title('Training vs LOOCV R² Across log(Alpha)')
+    plt.title('Ridge Regression: Training vs. LOOCV R² Across log(Alpha)')
     plt.xlabel('log(Alpha)')
     plt.ylabel('R²')
     plt.legend()
