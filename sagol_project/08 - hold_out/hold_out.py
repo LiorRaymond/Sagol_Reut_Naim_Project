@@ -10,10 +10,9 @@ import random
 from scipy.stats import ttest_ind
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import LeaveOneOut
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import balanced_accuracy_score, f1_score
 
 # —————————————————————————————————————————————————————
 # PARAMETERS & PATHS
@@ -30,7 +29,7 @@ out_dir     = BASE_DIR / "results"
 out_dir.mkdir(exist_ok=True)
 
 bad_et_ids = [23149, 24234]
-alpha  = 0.10
+alpha  = 0.14
 threshold_vif = 12
 ff_cor_threshold = 0.9
 seed = 42
@@ -104,11 +103,11 @@ feature_corr_df = pd.DataFrame({
     "significant_SCARED": rej_scared
 })
 
-# Save to file
 feature_corr_df.to_csv(out_dir / "feature_selection_ari_scared.csv", index=False)
 
 # Select features with significant correlation to either ARI or SCARED
 selected_features = feature_corr_df.query("significant_ARI or significant_SCARED")["Feature"].tolist()
+print(f"Selected {len(selected_features)} features based on ARI and SCARED correlation.")
 X_train_selected = X_train[selected_features]
 
 
@@ -173,10 +172,10 @@ removed_df = []
 for _, row in high_corr_df.iterrows():
     f1, f2 = row["Feature_1"], row["Feature_2"]
 
-    r1_ari = safe_pearson(X_train[f1], y_train[ari_col])
-    r2_ari = safe_pearson(X_train[f2], y_train[ari_col])
-    r1_scared = safe_pearson(X_train[f1], y_train[scared_col])
-    r2_scared = safe_pearson(X_train[f2], y_train[scared_col])
+    r1_ari = masked_pearson(X_train[f1], y_ari)[0]
+    r2_ari = masked_pearson(X_train[f2], y_ari)[0]
+    r1_scared = masked_pearson(X_train[f1], y_scared)[0]
+    r2_scared = masked_pearson(X_train[f2], y_scared)[0]
 
     r1_avg = np.nanmean([abs(r1_ari), abs(r1_scared)])
     r2_avg = np.nanmean([abs(r2_ari), abs(r2_scared)])
