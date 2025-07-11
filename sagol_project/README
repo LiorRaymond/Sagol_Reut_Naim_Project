@@ -34,3 +34,13 @@ Tuesday, April 22, 2025
       - Between ARI and SCARED (parent, item-level and total)
 3. R. Naim and Z. Laky to consider whether model should account for dependancies between ARI and SCARED. 
 
+Thursday, July 10, 2025
+Next Steps:
+1. Exclude participants with poor quality eye-tracking data (BAD ET).
+2. After splitting data into train and test sets, run independent samples t-tests for each feature.
+3. Remove all features previously agreed to be excluded from final analysis.
+4. Apply False Discovery Rate (FDR) correction with p-value threshold of 0.10.
+5. Run VIF and correlations between features(not for feature elimination, but to ensure sanity of included variables)
+5. Implement the model as outlined in Zoë’s email, including scaling within each cross-validation fold.
+6. Run separate models for parents and children.
+7. Test performance of model using only binary features.
