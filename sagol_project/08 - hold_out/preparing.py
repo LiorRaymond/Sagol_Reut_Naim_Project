@@ -131,8 +131,11 @@ def calculate_correlations(data, features, X_train, X_test, alpha):
     significant_features_df.to_csv(out_dir / "significant_features_only.csv", index=False)
 
     selected_features = significant_features_df["Feature"].tolist()
-    X_train_selected = X_train[selected_features]
-    X_test_selected = X_test[selected_features]
+    # Add ID column to selected features
+    X_train_selected = X_train[selected_features].copy()
+    X_train_selected["ID"] = data.loc[X_train.index, "ID"].values
+    X_test_selected = X_test[selected_features].copy()
+    X_test_selected["ID"] = data.loc[X_test.index, "ID"].values
 
     X_train_selected.to_csv(out_dir / "X_train_final.csv", index=False)
     X_test_selected.to_csv(out_dir / "X_test_final.csv", index=False)
@@ -193,10 +196,4 @@ def main():
     correlation_between_features(X_train_selected, alpha)
 
 main()
-
-# —————————————————————————————————————————————————————
-# 4. MODELING — LOOCV with Ridge Regression
-# —————————————————————————————————————————————————————
-
-
 
