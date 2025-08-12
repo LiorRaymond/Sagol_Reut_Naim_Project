@@ -187,42 +187,66 @@ def correlation_between_features(X_train_selected, alpha):
     return
 
 def select_features(data, features, X_train, X_test, alpha, mode="combined", save_dir=None):
-    y_ari = data.loc[X_train.index, "ARI_6_P"]
-    y_scared = data.loc[X_train.index, "SCARED_P"]
-
-    r_ari, p_ari = [], []
-    r_scared, p_scared = [], []
     features_list = features.columns.tolist()
 
-    for col in features_list:
-        r1, p1 = pearsonr(X_train[col], y_ari)
-        r2, p2 = pearsonr(X_train[col], y_scared)
-        r_ari.append(r1)
-        p_ari.append(p1)
-        r_scared.append(r2)
-        p_scared.append(p2)
-
-    rej_ari, p_fdr_ari = fdrcorrection(p_ari, alpha=alpha)
-    rej_scared, p_fdr_scared = fdrcorrection(p_scared, alpha=alpha)
-
-    feature_corr_df = pd.DataFrame({
-        "Feature": features_list,
-        "r_ARI": r_ari,
-        "p_ARI": p_ari,
-        "p_ARI_fdr": p_fdr_ari,
-        "significant_ARI": rej_ari,
-        "r_SCARED": r_scared,
-        "p_SCARED": p_scared,
-        "p_SCARED_fdr": p_fdr_scared,
-        "significant_SCARED": rej_scared
-    })
-
-    if mode == "combined":
-        significant_features_df = feature_corr_df.query("significant_ARI or significant_SCARED")
-    elif mode == "ari":
+    if mode == "ari":
+        y = data.loc[X_train.index, "ARI_6_P"]
+        r_list, p_list = [], []
+        for col in features_list:
+            r, p = pearsonr(X_train[col], y)
+            r_list.append(r)
+            p_list.append(p)
+        rej, p_fdr = fdrcorrection(p_list, alpha=alpha)
+        feature_corr_df = pd.DataFrame({
+            "Feature": features_list,
+            "r_ARI": r_list,
+            "p_ARI": p_list,
+            "p_ARI_fdr": p_fdr,
+            "significant_ARI": rej
+        })
         significant_features_df = feature_corr_df.query("significant_ARI")
     elif mode == "scared":
+        y = data.loc[X_train.index, "SCARED_P"]
+        r_list, p_list = [], []
+        for col in features_list:
+            r, p = pearsonr(X_train[col], y)
+            r_list.append(r)
+            p_list.append(p)
+        rej, p_fdr = fdrcorrection(p_list, alpha=alpha)
+        feature_corr_df = pd.DataFrame({
+            "Feature": features_list,
+            "r_SCARED": r_list,
+            "p_SCARED": p_list,
+            "p_SCARED_fdr": p_fdr,
+            "significant_SCARED": rej
+        })
         significant_features_df = feature_corr_df.query("significant_SCARED")
+    elif mode == "combined":
+        y_ari = data.loc[X_train.index, "ARI_6_P"]
+        y_scared = data.loc[X_train.index, "SCARED_P"]
+        r_ari, p_ari = [], []
+        r_scared, p_scared = [], []
+        for col in features_list:
+            r1, p1 = pearsonr(X_train[col], y_ari)
+            r2, p2 = pearsonr(X_train[col], y_scared)
+            r_ari.append(r1)
+            p_ari.append(p1)
+            r_scared.append(r2)
+            p_scared.append(p2)
+        rej_ari, p_fdr_ari = fdrcorrection(p_ari, alpha=alpha)
+        rej_scared, p_fdr_scared = fdrcorrection(p_scared, alpha=alpha)
+        feature_corr_df = pd.DataFrame({
+            "Feature": features_list,
+            "r_ARI": r_ari,
+            "p_ARI": p_ari,
+            "p_ARI_fdr": p_fdr_ari,
+            "significant_ARI": rej_ari,
+            "r_SCARED": r_scared,
+            "p_SCARED": p_scared,
+            "p_SCARED_fdr": p_fdr_scared,
+            "significant_SCARED": rej_scared
+        })
+        significant_features_df = feature_corr_df.query("significant_ARI or significant_SCARED")
     else:
         raise ValueError("mode must be 'combined', 'ari', or 'scared'")
 
