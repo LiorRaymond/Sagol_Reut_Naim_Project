@@ -186,14 +186,85 @@ def correlation_between_features(X_train_selected, alpha):
     correlation_df.to_csv(out_dir / "feature_correlation.csv", index=False)
     return
 
+def select_features(data, features, X_train, X_test, alpha, mode="combined", save_dir=None):
+    y_ari = data.loc[X_train.index, "ARI_6_P"]
+    y_scared = data.loc[X_train.index, "SCARED_P"]
+
+    r_ari, p_ari = [], []
+    r_scared, p_scared = [], []
+    features_list = features.columns.tolist()
+
+    for col in features_list:
+        r1, p1 = pearsonr(X_train[col], y_ari)
+        r2, p2 = pearsonr(X_train[col], y_scared)
+        r_ari.append(r1)
+        p_ari.append(p1)
+        r_scared.append(r2)
+        p_scared.append(p2)
+
+    rej_ari, p_fdr_ari = fdrcorrection(p_ari, alpha=alpha)
+    rej_scared, p_fdr_scared = fdrcorrection(p_scared, alpha=alpha)
+
+    feature_corr_df = pd.DataFrame({
+        "Feature": features_list,
+        "r_ARI": r_ari,
+        "p_ARI": p_ari,
+        "p_ARI_fdr": p_fdr_ari,
+        "significant_ARI": rej_ari,
+        "r_SCARED": r_scared,
+        "p_SCARED": p_scared,
+        "p_SCARED_fdr": p_fdr_scared,
+        "significant_SCARED": rej_scared
+    })
+
+    if mode == "combined":
+        significant_features_df = feature_corr_df.query("significant_ARI or significant_SCARED")
+    elif mode == "ari":
+        significant_features_df = feature_corr_df.query("significant_ARI")
+    elif mode == "scared":
+        significant_features_df = feature_corr_df.query("significant_SCARED")
+    else:
+        raise ValueError("mode must be 'combined', 'ari', or 'scared'")
+
+    if save_dir is None:
+        save_dir = out_dir
+
+    selected_features = significant_features_df["Feature"].tolist()
+    X_train_selected = X_train[selected_features].copy()
+    X_train_selected["ID"] = data.loc[X_train.index, "ID"].values
+    X_test_selected = X_test[selected_features].copy()
+    X_test_selected["ID"] = data.loc[X_test.index, "ID"].values
+
+    feature_corr_df.to_csv(save_dir / f"feature_correlation_ari_scared.csv", index=False)
+    significant_features_df.to_csv(save_dir / f"significant_features_only.csv", index=False)
+    X_train_selected.to_csv(save_dir / f"X_train_final.csv", index=False)
+    X_test_selected.to_csv(save_dir / f"X_test_final.csv", index=False)
+    return X_train_selected, X_test_selected
+
 def main():
     data, features, tt_data = load_and_prepare_data()
     X_train, X_test, y_train, y_test = holdout_split(data, tt_data)
     ttest_df = ttest_holdout_split(X_train, X_test, y_train, y_test)
-    #feature selection
-    X_train_selected = calculate_correlations(data, features, X_train, X_test, alpha)
-    compute_vif(X_train_selected)
-    correlation_between_features(X_train_selected, alpha)
+
+    for mode in ["combined", "ari", "scared"]:
+        mode_dir = out_dir / mode
+        mode_dir.mkdir(exist_ok=True)
+
+        # Feature selection (save directly to mode_dir)
+        X_train_selected, X_test_selected = select_features(
+            data, features, X_train, X_test, alpha, mode=mode, save_dir=mode_dir
+        )
+
+        X_train_selected_no_id = X_train_selected.drop(columns=["ID"])
+
+        # VIF
+        vif_result = vif(X_train_selected_no_id)
+        vif_result.to_csv(mode_dir / "vif_result.csv", index=False)
+
+        # Correlation among selected features
+        correlation_between_features(X_train_selected_no_id, alpha)
+        Path(out_dir / "feature_correlation.csv").replace(mode_dir / "feature_correlation.csv")
 
 main()
+
 
