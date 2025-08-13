@@ -148,6 +148,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "p_ARI_fdr": p_fdr,
             "significant_ARI": rej
         })
+        feature_corr_df.to_csv(save_dir / "full_correlations_ari.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_ARI")
     elif mode == "scared":
         y = data.loc[X_train.index, scared_col]
@@ -164,6 +165,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "p_SCARED_fdr": p_fdr,
             "significant_SCARED": rej
         })
+        feature_corr_df.to_csv(save_dir / "full_correlations_scared.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_SCARED")
     elif mode == "combined":
         y_ari = data.loc[X_train.index, ari_col]
@@ -190,6 +192,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "p_SCARED_fdr": p_fdr_scared,
             "significant_SCARED": rej_scared
         })
+        feature_corr_df.to_csv(save_dir / "full_correlations_ari_and_scared.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_ARI or significant_SCARED")
     else:
         raise ValueError("mode must be 'combined', 'ari', or 'scared'")
