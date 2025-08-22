@@ -58,23 +58,19 @@ def holdout_split(data, tt_data):
     return X_train, X_test, y_train, y_test
 
 # ———sanity check for hold-out split
-def ttest_holdout_split(X_train, X_test, y_train, y_test):
+def ttest_holdout_split(X_train, X_test):
     train_df = pd.DataFrame(X_train, columns=X_train.columns)
-    train_df["Dx_binary"] = y_train.reset_index(drop=True)
-
     test_df = pd.DataFrame(X_test, columns=X_test.columns)
-    test_df["Dx_binary"] = y_test.reset_index(drop=True)
 
     results = []
     for col in train_df.select_dtypes(include=[np.number]).columns:
-        if col != "Dx_binary":
-            train_vals = train_df[col].dropna()
-            test_vals = test_df[col].dropna()
-            if len(train_vals) > 1 and len(test_vals) > 1:
-                t_stat, p_val = ttest_ind(train_vals, test_vals, equal_var=False)
-            else:
-                t_stat, p_val = np.nan, np.nan
-            results.append((col, t_stat, p_val))
+        train_vals = train_df[col].dropna()
+        test_vals = test_df[col].dropna()
+        if len(train_vals) > 1 and len(test_vals) > 1:
+            t_stat, p_val = ttest_ind(train_vals, test_vals, equal_var=False)
+        else:
+            t_stat, p_val = np.nan, np.nan
+        results.append((col, t_stat, p_val))
 
     ttest_df = pd.DataFrame(results, columns=["Feature", "t_stat", "p_value"])
     rej, p_fdr = fdrcorrection(ttest_df["p_value"], alpha=alpha)
@@ -146,10 +142,13 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "r_ARI": r_list,
             "p_ARI": p_list,
             "p_ARI_fdr": p_fdr,
-            "significant_ARI": rej
+            "significant_ARI": rej,
+            "significant_without_fdr_ARI": np.array(p_list) < alpha
         })
         feature_corr_df.to_csv(save_dir / "full_correlations_ari.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_ARI")
+        significant_without_fdr_df = feature_corr_df.query("significant_without_fdr_ARI")
+
     elif mode == "scared":
         y = data.loc[X_train.index, scared_col]
         r_list, p_list = [], []
@@ -163,10 +162,13 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "r_SCARED": r_list,
             "p_SCARED": p_list,
             "p_SCARED_fdr": p_fdr,
-            "significant_SCARED": rej
+            "significant_SCARED": rej,
+            "significant_without_fdr_SCARED": np.array(p_list) < alpha
         })
         feature_corr_df.to_csv(save_dir / "full_correlations_scared.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_SCARED")
+        significant_without_fdr_df = feature_corr_df.query("significant_without_fdr_SCARED")
+
     elif mode == "combined":
         y_ari = data.loc[X_train.index, ari_col]
         y_scared = data.loc[X_train.index, scared_col]
@@ -190,10 +192,13 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
             "r_SCARED": r_scared,
             "p_SCARED": p_scared,
             "p_SCARED_fdr": p_fdr_scared,
-            "significant_SCARED": rej_scared
+            "significant_SCARED": rej_scared,
+            "significant_without_fdr_ARI": np.array(p_ari) < alpha,
+            "significant_without_fdr_SCARED": np.array(p_scared) < alpha
         })
         feature_corr_df.to_csv(save_dir / "full_correlations_ari_and_scared.csv", index=False)
         significant_features_df = feature_corr_df.query("significant_ARI or significant_SCARED")
+        significant_without_fdr_df = feature_corr_df.query("significant_without_fdr_ARI or significant_without_fdr_SCARED")
     else:
         raise ValueError("mode must be 'combined', 'ari', or 'scared'")
 
@@ -208,6 +213,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
 
     feature_corr_df.to_csv(save_dir / f"feature_correlation_ari_scared.csv", index=False)
     significant_features_df.to_csv(save_dir / f"significant_features_only.csv", index=False)
+    significant_without_fdr_df.to_csv(save_dir / f"significant_features_without_fdr.csv", index=False)
     X_train_selected.to_csv(save_dir / f"X_train_final.csv", index=False)
     X_test_selected.to_csv(save_dir / f"X_test_final.csv", index=False)
     return X_train_selected, X_test_selected
@@ -215,7 +221,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
 def main():
     data, features, tt_data = load_and_prepare_data()
     X_train, X_test, y_train, y_test = holdout_split(data, tt_data)
-    ttest_df = ttest_holdout_split(X_train, X_test, y_train, y_test)
+    ttest_df = ttest_holdout_split(X_train, X_test)
 
     score_types = {
         "parent": {"ari_col": "ARI_6_P", "scared_col": "SCARED_P"},

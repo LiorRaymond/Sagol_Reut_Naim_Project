@@ -43,7 +43,7 @@ for score_type in score_types:
                 break
 
             imputer = SimpleImputer(strategy="mean")
-            scaler = StandardScaler()
+            scaler = StandardScaler(with_mean=False)
             X_tr_imp = imputer.fit_transform(X_tr_nofeatures)
             X_te_imp = imputer.transform(X_te_nofeatures)
             X_tr_scaled = scaler.fit_transform(X_tr_imp)
