@@ -44,3 +44,18 @@ Next Steps:
 5. Implement the model as outlined in Zoë’s email, including scaling within each cross-validation fold.
 6. Run separate models for parents and children.
 7. Test performance of model using only binary features.
+
+Tuesday, August 19, 2025
+Following our meeting, here are the agreed next steps:
+
+1.Remove the following variables from the feature selection:
+-pctoffscreen - too noisy
+-pctSamplesoffscreen - not relevant
+-pctonbackground - duplicate
+-msTotal - duplicate
+2.For the t-test, run all variables except dx_binary.
+3.For Ari (and child) – rerun the analysis without FDR and send results to Zoe for approval.
+4.Use IterativeImputer and check whether a SEED is required.
+5.Verify that the with_mean parameter applies both centering and standardization.
+6.In the final model, extract and save the additional parameters (beyond alpha - in particular beta), so they can be used later in the model.
+7.After completing the analyses with these changes, send the final parent and child results for approval (with and without FDR).
