@@ -205,7 +205,7 @@ def select_features(data, features, X_train, X_test, alpha, mode="combined", sav
     if save_dir is None:
         save_dir = out_dir
 
-    selected_features = significant_features_df["Feature"].tolist()
+    selected_features = significant_without_fdr_df["Feature"].tolist()
     X_train_selected = X_train[selected_features].copy()
     X_train_selected["ID"] = data.loc[X_train.index, "ID"].values
     X_test_selected = X_test[selected_features].copy()
