@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
 from sklearn.linear_model import RidgeClassifier
 from sklearn.metrics import balanced_accuracy_score, f1_score, classification_report
 from pathlib import Path
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 # Load Cleaned_data.csv for labels
 data = pd.read_csv("data/Cleaned_data.csv")
@@ -42,8 +43,8 @@ for score_type in score_types:
                 print(f"No features selected for {score_type} mode '{mode}'. Skipping modeling.")
                 break
 
-            imputer = SimpleImputer(strategy="mean")
-            scaler = StandardScaler(with_mean=False)
+            imputer = IterativeImputer(random_state=42)
+            scaler = StandardScaler(with_mean=True, with_std=True)
             X_tr_imp = imputer.fit_transform(X_tr_nofeatures)
             X_te_imp = imputer.transform(X_te_nofeatures)
             X_tr_scaled = scaler.fit_transform(X_tr_imp)
@@ -85,7 +86,7 @@ for score_type in score_types:
 
         best = metrics_df.loc[metrics_df["balanced_accuracy"].idxmax(), "alpha"]
 
-        imputer = SimpleImputer(strategy="mean")
+        imputer = IterativeImputer(random_state=42)
         scaler = StandardScaler()
         X_train_imp = imputer.fit_transform(X_train.drop(columns=["ID"]))
         X_test_imp = imputer.transform(X_test.drop(columns=["ID"]))
@@ -94,7 +95,32 @@ for score_type in score_types:
 
         final_model = RidgeClassifier(alpha=best)
         final_model.fit(X_train_scaled, y_train)
+        
+        # Extract and save model coefficients immediately after fitting
+        coefficients = final_model.coef_[0] if final_model.coef_.ndim > 1 else final_model.coef_
+        intercept = final_model.intercept_[0] if hasattr(final_model.intercept_, '__len__') else final_model.intercept_
+        
+        # Get feature names 
+        feature_names = X_train.drop(columns=["ID"]).columns.tolist()
+        
+        # Save coefficients to ensure they're preserved
+        coeff_df = pd.DataFrame({
+            "feature": feature_names,
+            "coefficient": coefficients
+        })
+        coeff_df["abs_coefficient"] = np.abs(coeff_df["coefficient"])
+        coeff_df = coeff_df.sort_values("abs_coefficient", ascending=False)
+        coeff_df.to_csv(model_dir / "holdout_model_coefficients.txt", sep="\t", index=False)
+        
+        # Now make predictions
         test_preds = final_model.predict(X_test_scaled)
+        
+        # Verify coefficients haven't changed (they shouldn't, but let's be sure)
+        coefficients_after = final_model.coef_[0] if final_model.coef_.ndim > 1 else final_model.coef_
+        intercept_after = final_model.intercept_[0] if hasattr(final_model.intercept_, '__len__') else final_model.intercept_
+        
+        coeffs_unchanged = np.allclose(coefficients, coefficients_after)
+        intercept_unchanged = np.allclose(intercept, intercept_after)
 
         test_results = pd.DataFrame({
             "ID": X_test["ID"],
@@ -105,7 +131,13 @@ for score_type in score_types:
 
         with open(model_dir / "holdout_test_summary.txt", "w") as f:
             f.write(f"Best alpha: {best}\n")
+            f.write(f"Model intercept: {intercept:.6f}\n")
+            f.write(f"Coefficients unchanged after prediction: {coeffs_unchanged}\n")
+            f.write(f"Intercept unchanged after prediction: {intercept_unchanged}\n")
             f.write(f"Test Balanced Accuracy: {balanced_accuracy_score(y_test, test_preds):.3f}\n")
             f.write(f"Test F1 Score: {f1_score(y_test, test_preds):.3f}\n")
+            f.write(f"\nTop 10 features by absolute coefficient value:\n")
+            for _, row in coeff_df.head(10).iterrows():
+                f.write(f"{row['feature']}: {row['coefficient']:.6f}\n")
             f.write("\nClassification Report:\n")
             f.write(classification_report(y_test, test_preds, zero_division=0))

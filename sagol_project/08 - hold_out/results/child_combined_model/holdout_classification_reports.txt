@@ -1,0 +1,55 @@
+Classification Report for alpha=0.1:
+              precision    recall  f1-score   support
+
+           0       0.12      0.08      0.10        12
+           1       0.72      0.80      0.76        35
+
+    accuracy                           0.62        47
+   macro avg       0.42      0.44      0.43        47
+weighted avg       0.57      0.62      0.59        47
+
+
+Classification Report for alpha=0.3:
+              precision    recall  f1-score   support
+
+           0       0.12      0.08      0.10        12
+           1       0.72      0.80      0.76        35
+
+    accuracy                           0.62        47
+   macro avg       0.42      0.44      0.43        47
+weighted avg       0.57      0.62      0.59        47
+
+
+Classification Report for alpha=0.5:
+              precision    recall  f1-score   support
+
+           0       0.12      0.08      0.10        12
+           1       0.72      0.80      0.76        35
+
+    accuracy                           0.62        47
+   macro avg       0.42      0.44      0.43        47
+weighted avg       0.57      0.62      0.59        47
+
+
+Classification Report for alpha=0.7:
+              precision    recall  f1-score   support
+
+           0       0.14      0.08      0.11        12
+           1       0.72      0.83      0.77        35
+
+    accuracy                           0.64        47
+   macro avg       0.43      0.46      0.44        47
+weighted avg       0.58      0.64      0.60        47
+
+
+Classification Report for alpha=1.0:
+              precision    recall  f1-score   support
+
+           0       0.17      0.08      0.11        12
+           1       0.73      0.86      0.79        35
+
+    accuracy                           0.66        47
+   macro avg       0.45      0.47      0.45        47
+weighted avg       0.59      0.66      0.62        47
+
+
