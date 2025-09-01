@@ -1,0 +1,28 @@
+Best alpha: 0.3
+Model intercept: 0.489362
+Coefficients unchanged after prediction: True
+Intercept unchanged after prediction: True
+Test Balanced Accuracy: 0.500
+Test F1 Score: 0.706
+
+Top 10 features by absolute coefficient value:
+Angry_Direct_FinalMax: -0.922529
+Calm_Direct_FinalMax: 0.681851
+Dwell_c_d_BG: -0.665220
+Dwell_a_d_BG: 0.543269
+pctFirstFixc_aBG: 0.311473
+Dwell_a_d_EY: 0.254690
+pctFirstFixc_dBG: 0.231009
+pctFirstFixa_dBG: -0.164703
+Dwell_c_a_BG: -0.161882
+pctFirstFixa_dEY: -0.153706
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.25      0.33      0.29         3
+           1       0.75      0.67      0.71         9
+
+    accuracy                           0.58        12
+   macro avg       0.50      0.50      0.50        12
+weighted avg       0.62      0.58      0.60        12
