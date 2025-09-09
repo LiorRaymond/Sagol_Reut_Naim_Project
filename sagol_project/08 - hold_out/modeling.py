@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import RidgeClassifier
-from sklearn.metrics import balanced_accuracy_score, f1_score, classification_report
+from sklearn.metrics import balanced_accuracy_score, f1_score, classification_report, confusion_matrix
 from pathlib import Path
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
@@ -84,6 +84,14 @@ for score_type in score_types:
                 f.write(classification_report(loocv_df["y_true"], preds, zero_division=0))
                 f.write("\n\n")
 
+        with open(model_dir / "holdout_confusion_matrices.txt", "w") as f:
+            for alpha in alphas:
+                preds = loocv_df[f"y_pred_{alpha}"]
+                conf_matrix = confusion_matrix(loocv_df["y_true"], preds)
+                f.write(f"Confusion Matrix for alpha={alpha}:\n")
+                f.write(pd.DataFrame(conf_matrix, index=["True_Negative", "True_Positive"], columns=["Pred_Negative", "Pred_Positive"]).to_string())
+                f.write("\n\n")
+
         best = metrics_df.loc[metrics_df["balanced_accuracy"].idxmax(), "alpha"]
 
         imputer = IterativeImputer(random_state=42)
@@ -128,6 +136,11 @@ for score_type in score_types:
             "y_pred": test_preds
         })
         test_results.to_csv(model_dir / "holdout_test_predictions.txt", sep="\t", index=False)
+
+        # confusion matrix
+        conf_matrix = confusion_matrix(y_test, test_preds)
+        conf_matrix_df = pd.DataFrame(conf_matrix, index=["True_Negative", "True_Positive"], columns=["Pred_Negative", "Pred_Positive"])
+        conf_matrix_df.to_csv(model_dir / "holdout_test_confusion_matrix.txt", sep="\t")
 
         with open(model_dir / "holdout_test_summary.txt", "w") as f:
             f.write(f"Best alpha: {best}\n")

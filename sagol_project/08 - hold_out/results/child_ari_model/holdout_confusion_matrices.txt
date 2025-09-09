@@ -1,0 +1,25 @@
+Confusion Matrix for alpha=0.1:
+               Pred_Negative  Pred_Positive
+True_Negative              1             11
+True_Positive              6             29
+
+Confusion Matrix for alpha=0.3:
+               Pred_Negative  Pred_Positive
+True_Negative              1             11
+True_Positive              5             30
+
+Confusion Matrix for alpha=0.5:
+               Pred_Negative  Pred_Positive
+True_Negative              1             11
+True_Positive              5             30
+
+Confusion Matrix for alpha=0.7:
+               Pred_Negative  Pred_Positive
+True_Negative              1             11
+True_Positive              5             30
+
+Confusion Matrix for alpha=1.0:
+               Pred_Negative  Pred_Positive
+True_Negative              1             11
+True_Positive              5             30
+
