@@ -1,0 +1,54 @@
+Classification Report for alpha=0.1:
+              precision    recall  f1-score   support
+
+ Healthy (0)       0.33      0.33      0.33        12
+Clinical (1)       0.77      0.77      0.77        35
+
+    accuracy                           0.66        47
+   macro avg       0.55      0.55      0.55        47
+weighted avg       0.66      0.66      0.66        47
+
+
+Classification Report for alpha=0.3:
+              precision    recall  f1-score   support
+
+ Healthy (0)       0.36      0.33      0.35        12
+Clinical (1)       0.78      0.80      0.79        35
+
+    accuracy                           0.68        47
+   macro avg       0.57      0.57      0.57        47
+weighted avg       0.67      0.68      0.68        47
+
+
+Classification Report for alpha=0.5:
+              precision    recall  f1-score   support
+
+ Healthy (0)       0.50      0.42      0.45        12
+Clinical (1)       0.81      0.86      0.83        35
+
+    accuracy                           0.74        47
+   macro avg       0.66      0.64      0.64        47
+weighted avg       0.73      0.74      0.74        47
+
+
+Classification Report for alpha=0.7:
+              precision    recall  f1-score   support
+
+ Healthy (0)       0.50      0.33      0.40        12
+Clinical (1)       0.79      0.89      0.84        35
+
+    accuracy                           0.74        47
+   macro avg       0.65      0.61      0.62        47
+weighted avg       0.72      0.74      0.73        47
+
+
+Classification Report for alpha=1.0:
+              precision    recall  f1-score   support
+
+ Healthy (0)       0.50      0.33      0.40        12
+Clinical (1)       0.79      0.89      0.84        35
+
+    accuracy                           0.74        47
+   macro avg       0.65      0.61      0.62        47
+weighted avg       0.72      0.74      0.73        47
+

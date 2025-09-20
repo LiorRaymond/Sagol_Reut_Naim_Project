@@ -1,0 +1,24 @@
+Confusion Matrix for alpha=0.1:
+        Pred_0  Pred_1
+True_0       5       7
+True_1       8      27
+
+Confusion Matrix for alpha=0.3:
+        Pred_0  Pred_1
+True_0       5       7
+True_1       7      28
+
+Confusion Matrix for alpha=0.5:
+        Pred_0  Pred_1
+True_0       5       7
+True_1       5      30
+
+Confusion Matrix for alpha=0.7:
+        Pred_0  Pred_1
+True_0       4       8
+True_1       5      30
+
+Confusion Matrix for alpha=1.0:
+        Pred_0  Pred_1
+True_0       2      10
+True_1       5      30
